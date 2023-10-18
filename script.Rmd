@@ -9,29 +9,43 @@ output:
 editor_options:
   chunk_output_type: console
 ---
-## Synopsis:  
-#### This analysis used the NOAA Storm Database to find the event types that are either most harmful to population health or that caused the greatest economic damage. Data were first imported from the bz2 zipped file. The columns related to economic loss (PROPDMG, PROPDMGEXP, CROPDMG and CROPDMGEXP) were transformed from characters to numbers using the exponent indicated in the PROPDMGEXP and CROPDMGEXP columns. Total economic loss was then calculated by sum of property and crop loss amount. The fatality and injuries were calculated directed by the original data and grouped by event types. Finally, Top 5 most harmful event types were plotted.
+## Overview  
+        1. Synopsis
+        2. Data Processing  
+                2.1 Load libraries  
+                2.2 Read in data  
+                2.3 Data transformation  
+        3. Result
+
+## 1. Synopsis:  
+This analysis used the NOAA Storm Database to find the event types that are either most harmful to population health or that caused the greatest economic damage. Data were first imported from the bz2 zipped file. The columns related to economic loss (PROPDMG, PROPDMGEXP, CROPDMG and CROPDMGEXP) were transformed from characters to numbers using the exponent indicated in the PROPDMGEXP and CROPDMGEXP columns. Total economic loss was then calculated by sum of property and crop loss amount. The fatality and injuries were calculated directed by the original data and grouped by event types. Finally, Top 5 most harmful event types were plotted.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-## Load libraries
+## 2. Data Processing
+## 2.1 Load libraries
 ```{r, message=FALSE}
 library(tidyverse)
 ```
 
-## Data Processing
+## 2.2 Read in data
 ```{r}
 # read in data
 df <- read.csv("repdata_data_StormData.csv.bz2")
 
-# transform the PROPDMG and PROPDMGEXP columns to property loss amounts
+```
+## 2.3 Data transformation
+```{r}
+#Because the PROPDMGEXP and CROPDMGEXP are exponents, 
+#transform the PROPDMG and PROPDMGEXP columns to property loss amounts
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Hh]", "2") 
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Kk]", "3") 
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Mm]", "6") 
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Bb]", "9") 
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[?+-]", "0")
 df$PROPDMGEXP[which(df$PROPDMGEXP=="")] <- "0"
+# add a column for total property damage
 df <- df %>% mutate(total_PROPDMG= as.numeric(PROPDMG)*(10^as.numeric(PROPDMGEXP)))
 
 # transform the CROPDMG and CROPDMGEXP columns to crops loss amounts
@@ -42,7 +56,7 @@ df$CROPDMGEXP <- str_replace_all(df$CROPDMGEXP, "[?]", "0")
 df$CROPDMGEXP[which(df$CROPDMGEXP=="")] <- "0"
 df <- df %>% mutate(total_CROPDMG= as.numeric(CROPDMG)*(10^as.numeric(CROPDMGEXP)))
 
-#calculate total economic loss
+#add a column for total economic loss
 df <- df %>% mutate(eco_loss= total_CROPDMG+ total_PROPDMG)
 
 #find the type of events that cost the top 5 economic loss and then make a plot
@@ -54,8 +68,6 @@ ggplot(p, aes(x=EVTYPE, y=Total_loss))+ geom_col()+
              title = "Top 5 event types with the greatest economic consequences")
 ```
 
-## Result 1:  
-## With respect to economic loss, TORNADO have the greatest economic consequences.  
 
 ```{r}
 #Evaluate event types that are most harmful to population health
@@ -77,6 +89,6 @@ ggplot(p, aes(x= EVTYPE, y=death))+ geom_col()+
 max_inj <- health_cost[which(health_cost$inj== max(health_cost$inj)),1:2]
 max_death <- health_cost[which(health_cost$death== max(health_cost$death)),c(1,3)]
 ```
-
-## Result 2:  
-## Tornado is the most harmful event to population health, and had caused `r max_inj[1, 2]` injuries and `r max_death[1,2]` deaths.
+## 3. Result:  
+#### With respect to economic loss, Flood has the greatest economic consequences.  
+#### To population health, Tornados are the most harmful event.  
