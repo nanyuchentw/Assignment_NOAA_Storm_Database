@@ -1,7 +1,27 @@
 library(tidyverse)
-df <- read.csv("repdata_data_StormData.csv.bz2")
-
+temp <- tempfile()
+URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(URL, temp)
+df <- read.csv(temp)
+#or may directly read in the csv.bz2 file
+#df <- read.csv("repdata_data_StormData.csv.bz2")
+length(unique(df$EVTYPE))
+unique(df$EVTYPE)
 #Data processing
+#Narrow down weather event types
+df$EVTYPE <- case_match (df$EVTYPE, 
+                         c("[Ww][Ii][Nn][Dd]", "[Tt][Ss][Tt][Mm]") ~ "Wind",
+                         c("[Ss][Nn][Oo][Ww]", "[Cc][Oo][Ll][Dd]", "[Ii][Cc][Ee]", 
+                           "LOW TEMPERATURE", "FROST", "[Hh][Aa][Ii][Ll]", "[Ff][Rr][Ee][Ee][Zz]", "SLEET", "BLIZZARD", "WINTER")~"Cold",
+                         c("[Ff][Ll][Oo][Oo][Dd]", "[Ss][Uu][Rr][Ff]", "[Rr][Aa][Ii][Nn]","THUNDERSTORM")~ "Flooding or Rain",
+                         c("[Tt][Oo][Rr][Nn][Aa][Dd][Oo]", "HURRICANE", "TYPHOON")~"Tornado",
+                         "[Ll][Ii][Gg][Hh][Tt][Nn][Ii][Nn][Gg]"~"Lightning",
+                         c("DRY", "DROUGHT")~ "Drought",
+                         c("[Hh][Ee][Aa][Tt]", "WARM")~"Heat",
+                         .default = df$EVTYPE
+                         )
+
+
 #Calculate total property damage
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Hh]", "2") 
 df$PROPDMGEXP <- str_replace_all(df$PROPDMGEXP, "[Kk]", "3") 
