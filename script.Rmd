@@ -27,6 +27,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## 2.1 Load libraries
 ```{r, message=FALSE}
 library(tidyverse)
+library(RColorBrewer)
 ```
 
 ## 2.2 Read in data
@@ -65,7 +66,9 @@ p <- df %>% group_by(EVTYPE) %>%
         arrange(desc(Total_loss)) %>% slice_head(n=10)
 p <- p %>% pivot_longer(Total_loss:Prop_loss, names_to = "Type", values_to = "Amount")
 ggplot(p, aes(x=EVTYPE, y=Amount, fill=Type))+ geom_col(position="dodge")+
-        labs(x= "Event type", y="Economic loss (dollars)" , title = "Top 10 events with the greatest economic impact")+
+        scale_fill_brewer(palette = "Set1")+
+        labs(x= "Event type", y="Economic loss (dollars)")+
+        ggtitle(label= "Top 10 events with the greatest economic impact") +
         coord_flip()
 ```
 
@@ -79,7 +82,9 @@ health_cost <- df %>% group_by(EVTYPE) %>%
 
 p <- health_cost %>% pivot_longer(inj:total, names_to = "Type", values_to = "Number")
 ggplot(p, aes(x= EVTYPE, y=Number, fill=Type))+ geom_col(position="dodge")+
-        labs(x="Event type", y="Injuries (person)", title= "Top 10 events causing injuries/fatalities")+
+        scale_fill_brewer(palette = "Set1")+
+        labs(x="Event type", y="Injuries (person)")+
+        ggtitle(label = "Top 10 events causing injuries/fatalities")+
         coord_flip()
 
 #Find the greatest numbers
