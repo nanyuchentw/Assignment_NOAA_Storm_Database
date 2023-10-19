@@ -1,4 +1,5 @@
 library(tidyverse)
+library(RColorBrewer)
 temp <- tempfile()
 URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
 download.file(URL, temp)
@@ -32,7 +33,9 @@ df <- df %>% mutate(Eco_loss= Crop_loss+ Prop_loss)
 p <- df %>% group_by(EVTYPE) %>% summarise(Total_loss= sum(Eco_loss), Crop_loss= sum(Crop_loss), Prop_loss= sum(Prop_loss)) %>% arrange(desc(Total_loss)) %>% slice_head(n=10)
 p <- p %>% pivot_longer(Total_loss:Prop_loss, names_to = "Type", values_to = "Amount")
 ggplot(p, aes(x=EVTYPE, y=Amount, fill=Type))+ geom_col(position="dodge")+
-        labs(x= "Event type", y="Economic loss (dollars)" , title = "Top 10 event types with the greatest economic consequences")+
+        scale_fill_brewer(palette = "Set1")+
+        labs(x= "Event type", y="Economic loss (dollars)")+ 
+        ggtitle(label = "Top 10 event types with the greatest economic consequences")+
         coord_flip()
 
 
@@ -43,6 +46,7 @@ health_cost <- df %>% group_by(EVTYPE) %>% summarise(inj= sum(INJURIES), death=s
 
 p <- health_cost %>% pivot_longer(inj:total, names_to = "Type", values_to = "Number")
 ggplot(p, aes(x= EVTYPE, y=Number, fill=Type))+ geom_col(position="dodge")+
+        scale_fill_brewer(palette = "Set1")+
         labs(x="Event type", y="Injuries (person)", title= "Top 10 event types causing the greatest number of injuries/fatalities")+
         coord_flip()
 
