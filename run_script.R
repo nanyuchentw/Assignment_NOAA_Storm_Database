@@ -1,12 +1,14 @@
 library(tidyverse)
 library(RColorBrewer)
-temp <- tempfile()
-URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
-download.file(URL, temp)
-df <- read.csv(temp)
-unlink(temp)
-#or may directly read in the csv.bz2 file
+library(kableExtra)
 df <- read.csv("repdata_data_StormData.csv.bz2")
+
+#or may read in data from URL
+# temp <- tempfile()
+# URL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+# download.file(URL, temp)
+# df <- read.csv(temp)
+# unlink(temp)
 
 #Data processing
 #Calculate total property damage
@@ -31,6 +33,8 @@ df <- df %>% mutate(Eco_loss= Crop_loss+ Prop_loss)
 
 #find the type of events that cost the top 10 economic loss and then make a plot
 p <- df %>% group_by(EVTYPE) %>% summarise(Total_loss= sum(Eco_loss), Crop_loss= sum(Crop_loss), Prop_loss= sum(Prop_loss)) %>% arrange(desc(Total_loss)) %>% slice_head(n=10)
+kable(p, "html")
+
 p <- p %>% pivot_longer(Total_loss:Prop_loss, names_to = "Type", values_to = "Amount")
 ggplot(p, aes(x=EVTYPE, y=Amount, fill=Type))+ geom_col(position="dodge")+
         scale_fill_brewer(palette = "Set1")+
