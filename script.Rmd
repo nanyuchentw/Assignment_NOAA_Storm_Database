@@ -3,9 +3,9 @@ title: 'Assignment: An anlysis with NOAA Storm Database on severe weather events
 author: "Nanyuchentw"
 date: "2023-10-07"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
-  pdf_document: default
 editor_options:
   chunk_output_type: console
 ---
@@ -20,12 +20,12 @@ editor_options:
 ## 1. Synopsis  
 This analysis used the NOAA Storm Database to find the event types that are either most harmful to population health or that caused the greatest economic damage. Data were first imported from the bz2 zipped file. The columns related to economic loss (PROPDMG, PROPDMGEXP, CROPDMG and CROPDMGEXP) were transformed from characters to numbers using the exponent indicated in the PROPDMGEXP and CROPDMGEXP columns. Total economic loss was then calculated by sum of property and crop loss amount. The fatality and injuries were calculated directed by the original data and grouped by event types. Finally, Top 5 most harmful event types were plotted.
 
-```{r setup, include=FALSE}
+```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ## 2. Data Processing
 ## 2.1 Load libraries
-```{r, message=FALSE}
+```{r, include=TRUE, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(kableExtra)
 library(RColorBrewer)
